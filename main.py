@@ -19,7 +19,7 @@ def root_get():
 
 @app.post("/method", status_code=201)
 def root_post():
-    return {"method": "GET"}
+    return {"method": "POST"}
 
 @app.delete("/method")
 def root_delete():
@@ -34,13 +34,11 @@ def root_options():
     return {"method": "OPTIONS"}
 
 ####### ZADANIE 3 ##########
-@app.get("/auth")
+@app.get("/auth", status_code=401)
 async def root(password: str, password_hash: str):
     hashed_password = hashlib.sha512(str.encode(password)).hexdigest()
     if password_hash == hashed_password:
         raise HTTPException(status_code=204)
-    else:
-        raise HTTPException(status_code=401)
 
 #######  ZADANIE 4 #########
 class Patient(BaseModel):
