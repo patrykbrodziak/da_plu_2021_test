@@ -53,7 +53,7 @@ async def root(patient: Patient):
     vaccination_date = register_date + datetime.timedelta(len(patient['name']) + len(patient['surname']))
     patient_dict = {"patient_id": app.patient_id, "name": patient['name'], "surname": patient['surname'], "register_date": register_date,
             "vaccination_date": vaccination_date }
-    app.tablica_pacientow.append(patient_dict)
+    app.tab_of_patients.append(patient_dict)
     return patient_dict
 
 ######## ZADANIE 5 #########
