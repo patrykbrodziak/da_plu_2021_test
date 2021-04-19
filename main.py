@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from typing import Optional
 import hashlib
 from pydantic import BaseModel
 import datetime
@@ -10,35 +11,35 @@ app.tab_of_patients = []
 ####### ZADANIE 1 ###########
 @app.get("/")
 def root():
-    return {'message': 'Hello World!'}
+    return {'message': 'Hello world!'}
 
 ####### ZADANIE 2 ###########
 @app.get("/method")
-def root_get():
+def method_get():
     return {"method": "GET"}
 
-@app.post("/method", status_code=201)
-def root_post():
-    return {"method": "POST"}
-
-@app.delete("/method")
-def root_delete():
-    return {"method": "DELETE"}
-
 @app.put("/method")
-def root_put():
+def method_put():
     return {"method": "PUT"}
 
 @app.options("/method")
-def root_options():
+def method_options():
     return {"method": "OPTIONS"}
 
+@app.delete("/method")
+def method_delete():
+    return {"method": "DELETE"}
+
+@app.post("/method", status_code=201)
+def method_post():
+    return {"method": "POST"}
+
 ####### ZADANIE 3 ##########
-@app.get("/auth", status_code=401)
-async def root(password: str, password_hash: str):
+@app.get("/auth", status_code=204)
+async def authentication(password: Optional[str] = None, password_hash: Optional[str] = None):
     hashed_password = hashlib.sha512(str.encode(password)).hexdigest()
-    if password_hash == hashed_password:
-        raise HTTPException(status_code=204)
+    if not password or not password_hash or password_hash != hashed_password:
+        raise HTTPException(status_code=401)
 
 #######  ZADANIE 4 #########
 class Patient(BaseModel):
