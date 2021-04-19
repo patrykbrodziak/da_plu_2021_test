@@ -38,7 +38,7 @@ def method_post():
 @app.get("/auth", status_code=204)
 async def authentication(response: Response, password: Optional[str], password_hash: Optional[str]):
     hashed_password = hashlib.sha512(str.encode(password)).hexdigest()
-    if not password or not password_hash or password_hash != str(hashed_password):
+    if not password or not password_hash or hashed_password != str(password_hash):
         raise HTTPException(status_code=401)
 
 #######  ZADANIE 4 #########
