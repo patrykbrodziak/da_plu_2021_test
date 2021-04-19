@@ -72,7 +72,7 @@ async def patient_get(id: int):
     return app.tab_of_patients[id - 1]
 
 
-def number_of_letters(name):
+def number_of_letters(name: str):
     letters = 0
     for letter in name.lower():
         if (letter >= 'a' and letter <='z') or letter in 'ąęóśłżźćń':
