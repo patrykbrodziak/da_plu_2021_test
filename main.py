@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from typing import Optional
 import hashlib
 from pydantic import BaseModel
@@ -36,9 +36,9 @@ def method_post():
 
 ####### ZADANIE 3 ##########
 @app.get("/auth", status_code=204)
-async def authentication(password: Optional[str] = None, password_hash: Optional[str] = None):
+async def authentication(response: Response, password: Optional[str], password_hash: Optional[str]):
     hashed_password = hashlib.sha512(str.encode(password)).hexdigest()
-    if not password or not password_hash or password_hash != hashed_password:
+    if not password or not password_hash or password_hash != str(hashed_password):
         raise HTTPException(status_code=401)
 
 #######  ZADANIE 4 #########
@@ -46,14 +46,20 @@ class Patient(BaseModel):
     name: str
     surname: str
 
-@app.post("/register", status_code=201)
+class SavedPatient(BaseModel):
+    id: int
+    name: str
+    surname: str
+    register_date: str
+    vaccination_date: str
+
+@app.post("/register", status_code=201, response_model=SavedPatient)
 async def root(patient: Patient):
     app.patient_id += 1
-    patient = dict(patient)
     register_date = datetime.date.today()
-    vaccination_date = register_date + datetime.timedelta(len(patient['name']) + len(patient['surname']))
-    patient_dict = {"patient_id": app.patient_id, "name": patient['name'], "surname": patient['surname'], "register_date": register_date,
-            "vaccination_date": vaccination_date }
+    vaccination_date = register_date + datetime.timedelta(len(patient.name) + len(patient.surname))
+    patient_dict = {"id": app.patient_id, "name": patient.name, "surname": patient.surname,
+                    "register_date": str(register_date), "vaccination_date": str(vaccination_date)}
     app.tab_of_patients.append(patient_dict)
     return patient_dict
 
