@@ -45,14 +45,8 @@ class Patient(BaseModel):
     name: str
     surname: str
 
-class SavedPatient(BaseModel):
-    id: int
-    name: str
-    surname: str
-    register_date: str
-    vaccination_date: str
 
-@app.post("/register", status_code=201, response_model=SavedPatient)
+@app.post("/register", status_code=201)
 async def root(patient: Patient):
     app.patient_id += 1
     register_date = datetime.date.today()
