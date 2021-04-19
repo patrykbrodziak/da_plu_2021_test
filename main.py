@@ -75,3 +75,4 @@ async def patient_get(id: int):
 def number_of_letters(name: str):
     return len(''.join([letter for letter in name if letter.isalpha()]))
 
+
