@@ -73,9 +73,5 @@ async def patient_get(id: int):
 
 
 def number_of_letters(name: str):
-    letters = 0
-    for letter in name.lower():
-        if (letter >= 'a' and letter <='z') or letter in 'ąęóśłżźćń':
-            letters += 1
-    return letters
+    return len(''.join([letter for letter in name if letter.isalpha()]))
 
