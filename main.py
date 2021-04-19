@@ -36,9 +36,8 @@ def method_post():
 
 ####### ZADANIE 3 ##########
 @app.get("/auth", status_code=204)
-async def authentication(response: Response, password: Optional[str], password_hash: Optional[str]):
-    hashed_password = hashlib.sha512(str.encode(password)).hexdigest()
-    if not password or not password_hash or hashed_password != str(password_hash):
+def password_auth(response: Response, password: Optional[str] = None, password_hash: Optional[str] = None):
+    if not password or not password_hash or hashlib.sha512(str(password).encode("utf-8") ).hexdigest() != str(password_hash):
         raise HTTPException(status_code=401)
 
 #######  ZADANIE 4 #########
@@ -57,7 +56,7 @@ class SavedPatient(BaseModel):
 async def root(patient: Patient):
     app.patient_id += 1
     register_date = datetime.date.today()
-    vaccination_date = register_date + datetime.timedelta(len(patient.name) + len(patient.surname))
+    vaccination_date = register_date + datetime.timedelta(number_of_letters(patient.name) + number_of_letters(patient.surname))
     patient_dict = {"id": app.patient_id, "name": patient.name, "surname": patient.surname,
                     "register_date": str(register_date), "vaccination_date": str(vaccination_date)}
     app.tab_of_patients.append(patient_dict)
@@ -65,11 +64,18 @@ async def root(patient: Patient):
 
 ######## ZADANIE 5 #########
 @app.get("/patient/{id}")
-async def root_get(id: int):
-    patient_id_tab = []
-    for i in app.tab_of_patients:
-        patient_id_tab.append(i['patient_id'])
-    if id in patient_id_tab:
-        return app.tab_of_patients[id-1]
-    else:
+async def patient_get(id: int):
+    if id < 1:
         raise HTTPException(status_code=400)
+    elif ((id - 1) >= len(app.tab_of_patients)):
+        raise HTTPException(status_code=404)
+    return app.tab_of_patients[id - 1]
+
+
+def number_of_letters(name):
+    letters = 0
+    for letter in name.lower():
+        if (letter >= 'a' and letter <='z') or letter in 'ąęóśłżźćń':
+            letters += 1
+    return letters
+
