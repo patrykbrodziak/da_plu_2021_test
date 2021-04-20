@@ -56,8 +56,7 @@ class SavedPatient(BaseModel):
 async def root(patient: Patient):
     app.patient_id += 1
     register_date = datetime.date.today()
-    vaccination_date = register_date + datetime.timedelta(number_of_letters(patient.name) + number_of_letters(patient.surname))
-    # vaccination_date = register_date + datetime.timedelta(onlyLetters(patient.name) + onlyLetters(patient.surname))
+    vaccination_date = register_date + datetime.timedelta(onlyLetters(patient.name) + onlyLetters(patient.surname))
     patient_dict = {"id": app.patient_id, "name": patient.name, "surname": patient.surname,
                     "register_date": str(register_date), "vaccination_date": str(vaccination_date)}
     app.tab_of_patients.append(patient_dict)
@@ -72,12 +71,10 @@ async def patient_get(id: int):
         raise HTTPException(status_code=404)
     return app.tab_of_patients[id - 1]
 
-def number_of_letters(name: str):
-    return len(''.join([letter for letter in name if letter.isalpha()]))
 
-# def onlyLetters(string: str):
-#     letters = 0
-#     for letter in string.lower():
-#         if (letter >= 'a' and letter <='z') or letter in 'ąęóśłżźćń':
-#             letters += 1
-#     return letters
+def onlyLetters(string: str):
+    letters = 0
+    for letter in string.lower():
+        if (letter >= 'a' and letter <='z') or letter in 'ąęóśłżźćń':
+            letters += 1
+    return letters
