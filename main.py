@@ -45,6 +45,8 @@ class Patient(BaseModel):
     name: str
     surname: str
 
+def number_of_letters(name: str):
+    return len(''.join([letter for letter in name if letter.isalpha()]))
 
 @app.post("/register", status_code=201)
 async def root(patient: Patient):
@@ -64,8 +66,3 @@ async def patient_get(id: int):
     elif ((id - 1) >= len(app.tab_of_patients)):
         raise HTTPException(status_code=404)
     return app.tab_of_patients[id - 1]
-
-
-def number_of_letters(name: str):
-    return len(''.join([letter for letter in name if letter.isalpha()]))
-
