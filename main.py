@@ -3,6 +3,9 @@ from typing import Optional
 import hashlib
 from pydantic import BaseModel
 import datetime
+from functools import wraps
+
+import pytest
 
 app = FastAPI()
 app.patient_id = 0
@@ -71,10 +74,113 @@ async def patient_get(id: int):
         raise HTTPException(status_code=404)
     return app.tab_of_patients[id - 1]
 
-
 def onlyLetters(string: str):
     letters = 0
     for letter in string.lower():
         if (letter >= 'a' and letter <='z') or letter in 'ąęóśłżźćń':
             letters += 1
     return letters
+
+
+########### ROZDZIAL 2 ###################
+########### ZADANIE 1 ####################
+def greetings(funcion):
+    def wrapper():
+        return 'Hello ' + funcion().title()
+    return wrapper
+
+@greetings
+def name_surname():
+    return "jan nowak"
+
+print(name_surname())
+########### ZADANIE 2 #####################
+def is_palindrome(function):
+    def wrapper():
+        word = ''.join(filter(str.isalnum, function())).lower()
+        rev = word[::-1]
+        if word == rev:
+            return function() + " - is palindrome"
+        else:
+            return function() + " - is not palindrome"
+    return wrapper
+
+@is_palindrome
+def sentence():
+    return "Łapał za kran, a kanarka złapał."
+
+
+############ ZADANIE 3 #######################
+def format_output(*args):
+    def decorator(function):
+        nonlocal args
+        def wrapper():
+            nonlocal args
+            indict = function()
+            outdict = {}
+            for arg in args:
+                names = arg.split("__")
+                val = ""
+                for name in names:
+                    if name not in indict:
+                        raise ValueError()
+                    if val != "":
+                        val += " "
+                    val += indict[name]
+                outdict[arg] = val
+            return outdict
+        return wrapper
+    return decorator
+
+@format_output("first_name__last_name", "city")
+def first_func():
+    return {
+        "first_name": "Jan",
+        "last_name": "Kowalski",
+        "city": "Warsaw"
+    }
+
+
+@format_output("first_name", "age")
+def second_func():
+    return {
+        "first_name": "Jan",
+        "last_name": "Kowalski",
+        "city": "Warsaw"
+    }
+
+########## ZADANIE 4 ################
+
+def add_class_method(cls):
+    def decorator(func):
+        @classmethod
+        @wraps(func)
+        def wrapper(self):
+            return func()
+        setattr(cls, func.__name__, wrapper)
+        return func
+    return decorator
+
+
+def add_instance_method(cls):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self):
+            return func()
+        setattr(cls, func.__name__, wrapper)
+        return func
+    return decorator
+
+class A:
+    pass
+
+@add_class_method(A)
+def foo():
+    return "Hello!"
+
+@add_instance_method(A)
+def bar():
+    return "Hello again!"
+
+assert A.foo() == "Hello!"
+assert A().bar() == "Hello again!"
