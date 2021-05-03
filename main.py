@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Response, Depends, status
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, HTTPException, Response, Depends, status, Cookie
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from typing import Optional
 import hashlib
@@ -214,3 +214,28 @@ def login_token(credentials: HTTPBasicCredentials = Depends(security)):
             app.session_token = app.session_token[1:]
         app.token_value.append(token)
     return {"token": token}
+
+############# ZADANIE 3 #############
+
+@app.get("/welcome_session")
+def welcome_session(*, response: Response, format: str = "", session_token: str = Cookie(None)):
+    if session_token not in app.session_token or session_token == '':
+        raise HTTPException(status_code=401)
+    else:
+        if format == 'html':
+            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=200)
+        if format == 'json':
+            return {"message": 'Welcome!'}
+        return PlainTextResponse(content="Welcome!", status_code=200)
+
+
+@app.get("/welcome_token")
+def welcome_token(*, response: Response, token: str = "", format: str = ""):
+    if token not in app.token_value or token == '':
+        raise HTTPException(status_code=401)
+    else:
+        if format == 'html':
+            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=200)
+        if format == 'json':
+            return {"message": 'Welcome!'}
+        return PlainTextResponse(content="Welcome!", status_code=200)
