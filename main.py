@@ -179,6 +179,8 @@ def add_instance_method(cls):
 security = HTTPBasic()
 app.session_token = []
 app.token_value = []
+app.s_token = []
+app.t_token = []
 ######### ZADANIE 1 ##########
 
 @app.get("/hello", response_class=HTMLResponse)
@@ -192,25 +194,48 @@ def key():
                                  ')QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?'))
 
 
+# @app.post("/login_session", status_code=201)
+# def login(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+#     token = key()
+#     if credentials.username != "4dm1n" or credentials.password != "NotSoSecurePa$$":
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+#     if token not in app.session_token:
+#         if len(app.session_token) >= 3:
+#             app.session_token = app.session_token[1:]
+#         app.session_token.append(token)
+#     response.set_cookie(key="session_token", value=token)
+#
+#
+# @app.post("/login_token", status_code=201)
+# def login_token(credentials: HTTPBasicCredentials = Depends(security)):
+#     token = key()
+#     if credentials.username != "4dm1n" or credentials.password != "NotSoSecurePa$$":
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+#     if token not in app.token_value:
+#         if len(app.token_value) >= 3:
+#             app.session_token = app.session_token[1:]
+#         app.token_value.append(token)
+#     return {"token": token}
+
 @app.post("/login_session", status_code=201)
 def login(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    token = key()
     if credentials.username != "4dm1n" or credentials.password != "NotSoSecurePa$$":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    if token not in app.session_token:
-        if len(app.session_token) >= 3:
-            app.session_token = app.session_token[1:]
-        app.session_token.append(token)
+        raise HTTPException(status_code=401)
+    token = key()
+    if token not in app.s_token:
+        if len(app.s_token) == 3:
+            del app.s_token[0]
+        app.s_token.append(token)
     response.set_cookie(key="session_token", value=token)
 
 
 @app.post("/login_token", status_code=201)
-def login_token(credentials: HTTPBasicCredentials = Depends(security)):
-    token = key()
+def login_token(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username != "4dm1n" or credentials.password != "NotSoSecurePa$$":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    if token not in app.token_value:
-        if len(app.token_value) >= 3:
-            app.session_token = app.session_token[1:]
-        app.token_value.append(token)
+        raise HTTPException(status_code=401)
+    token = key()
+    if token not in app.t_token:
+        if len(app.t_token) == 3:
+            del app.t_token[0]
+        app.t_token.append(token)
     return {"token": token}
