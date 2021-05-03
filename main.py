@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Response
+from fastapi.responses import HTMLResponse
 from typing import Optional
 import hashlib
 from pydantic import BaseModel
@@ -171,16 +172,10 @@ def add_instance_method(cls):
         return func
     return decorator
 
-class A:
-    pass
+######### WYKLAD 3 #########
+######### ZADANIE 1 ##########
 
-@add_class_method(A)
-def foo():
-    return "Hello!"
-
-@add_instance_method(A)
-def bar():
-    return "Hello again!"
-
-assert A.foo() == "Hello!"
-assert A().bar() == "Hello again!"
+@app.get("/hello", response_class=HTMLResponse)
+def hello_function():
+    today = datetime.date.today()
+    return """<h1>Hello! Today date is {}</h1>""".format(today)
