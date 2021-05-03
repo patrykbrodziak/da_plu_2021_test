@@ -234,40 +234,27 @@ def greedings(format):
     """
         return HTMLResponse(content=text)
 
-# @app.get("/welcome_session")
-# def welcome_session(format: str = "", session_token: str = Cookie(None)):
-#     if session_token not in app.session_token or session_token == '':
-#         raise HTTPException(status_code=401, detail="Unauthorised")
-#     else:
-#         if format == 'json':
-#             return {"message": 'Welcome!'}
-#         elif format == 'html':
-#             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=200)
-#         else:
-#             return PlainTextResponse(content="Welcome!", status_code=200)
-#
-#
-# @app.get("/welcome_token")
-# def welcome_token(token: str = "", format: str = ""):
-#     if token not in app.token_value or token == '':
-#         raise HTTPException(status_code=401, detail="Unauthorised")
-#     else:
-#         if format == 'json':
-#             return {"message": 'Welcome!'}
-#         elif format == 'html':
-#             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=200)
-#         else:
-#             return PlainTextResponse(content="Welcome!", status_code=200)
-
 @app.get("/welcome_session")
-def welcome_session(*, response: Response, session_token: str = Cookie(None), format: str = None):
-    if session_token not in app.session_token:
-        raise HTTPException(status_code=401)
-    return greedings(format)
+def welcome_session(format: str = "", session_token: str = Cookie(None)):
+    if session_token not in app.session_token or session_token == '':
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    else:
+        if format == 'json':
+            return {"message": 'Welcome!'}
+        elif format == 'html':
+            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=200)
+        else:
+            return PlainTextResponse(content="Welcome!", status_code=200)
 
 
 @app.get("/welcome_token")
-def token_session(*, response: Response, token: str = None, format: str = None):
-    if token not in app.token_value:
-        raise HTTPException(status_code=401)
-    return greedings(format)
+def welcome_token(token: str = "", format: str = ""):
+    if token not in app.token_value or token == '':
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    else:
+        if format == 'json':
+            return {"message": 'Welcome!'}
+        elif format == 'html':
+            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=200)
+        else:
+            return PlainTextResponse(content="Welcome!", status_code=200)
