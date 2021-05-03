@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Response, Depends, status, Cookie
-from fastapi.responses import HTMLResponse, PlainTextResponse, JSONResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, JSONResponse, RedirectResponse
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from typing import Optional
 import hashlib
@@ -196,13 +196,13 @@ def key():
 @app.post("/login_session", status_code=201)
 def login(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     token = key()
+    response.set_cookie(key="session_token", value=token)
     if credentials.username != "4dm1n" or credentials.password != "NotSoSecurePa$$":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     if token not in app.session_token:
         if len(app.session_token) == 3:
             app.session_token = app.session_token[1:]
         app.session_token.append(token)
-    response.set_cookie(key="session_token", value=token)
 
 @app.post("/login_token", status_code=201)
 def login_token(credentials: HTTPBasicCredentials = Depends(security)):
@@ -216,23 +216,6 @@ def login_token(credentials: HTTPBasicCredentials = Depends(security)):
     return {"token": token}
 
 ############# ZADANIE 3 #############
-def greedings(format):
-    if format == None:
-        return PlainTextResponse(content='Welcome!')
-    if format == "json":
-        return JSONResponse(content={"message": "Welcome!"})
-    if format == "html":
-        text = """
-    <html>
-        <head>
-            <title>Some HTML in here</title>
-        </head>
-        <body>
-            <h1>Welcome!</h1>
-        </body>
-    </html>
-    """
-        return HTMLResponse(content=text)
 
 @app.get("/welcome_session")
 def welcome_session(format: str = "", session_token: str = Cookie(None)):
@@ -258,3 +241,28 @@ def welcome_token(token: str = "", format: str = ""):
             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=200)
         else:
             return PlainTextResponse(content="Welcome!", status_code=200)
+
+@app.delete("/logout_session")
+def logout_session(format: str = "", session_token: str = Cookie(None)):
+    if session_token not in app.session_token or session_token == '':
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    app.session_token.remove(session_token)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
+
+
+@app.delete("/logout_token")
+def logout_token(token: str = "", format: str = ""):
+    if token not in app.session_token or token == '':
+        raise HTTPException(status_code=401, detail="Unauthorised")
+    app.session_token.remove(token)
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
+
+
+@app.get("/logged_out")
+def logged_out(format: str = ""):
+    if format == 'json':
+        return {"message": "Logged out!"}
+    elif format == 'html':
+        return HTMLResponse(content="<h1>Logged out!</h1>", status_code=200)
+    else:
+        return PlainTextResponse(content="Logged out!", status_code=200)
