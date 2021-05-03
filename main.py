@@ -190,8 +190,7 @@ def hello_function():
 
 ######### ZADANIE 2 ##########
 def key():
-    return ''.join(random.sample('zxcvbnm,./asdfghjkl;qwertyuiop[]1234567890-=!@#$%^&*()_+'
-                                 ')QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?'))
+    return ''.join(random.sample('zxcvbnm,./asdfghjkl;qwertyuiop[]1234567890-=!@#$%^&*()_+)QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?aq', 64))
 
 
 # @app.post("/login_session", status_code=201)
