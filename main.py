@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Response, Depends, status
 from fastapi.responses import HTMLResponse
+from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from typing import Optional
 import hashlib
 from pydantic import BaseModel
 import datetime
 from functools import wraps
+import random
 
 import pytest
 
@@ -173,9 +175,42 @@ def add_instance_method(cls):
     return decorator
 
 ######### WYKLAD 3 #########
+
+security = HTTPBasic()
+app.session_token = []
+app.token_value = []
 ######### ZADANIE 1 ##########
 
 @app.get("/hello", response_class=HTMLResponse)
 def hello_function():
     today = datetime.date.today()
     return """<h1>Hello! Today date is {}</h1>""".format(today)
+
+######### ZADANIE 2 ##########
+def key():
+    return ''.join(random.sample('zxcvbnm,./asdfghjkl;qwertyuiop[]1234567890-=!@#$%^&*()_+'
+                                 ')QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?'))
+
+
+@app.post("/login_session", status_code=201)
+def login(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    token = key()
+    if credentials.username != "4dm1n" or credentials.password != "NotSoSecurePa$$":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    if token not in app.session_token:
+        if len(app.session_token) >= 3:
+            app.session_token = app.session_token[1:]
+        app.session_token.append(token)
+    response.set_cookie(key="session_token", value=token)
+
+
+@app.post("/login_token", status_code=201)
+def login_token(credentials: HTTPBasicCredentials = Depends(security)):
+    token = key()
+    if credentials.username != "4dm1n" or credentials.password != "NotSoSecurePa$$":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    if token not in app.token_value:
+        if len(app.token_value) >= 3:
+            app.session_token = app.session_token[1:]
+        app.token_value.append(token)
+    return {"token": token}
