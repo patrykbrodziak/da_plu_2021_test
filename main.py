@@ -290,26 +290,26 @@ def logged_out(format:str = ""):
 
 
 @app.get("/categories", status_code=200)
-async def categories():
+async def categores():
     app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
     app.db_connection.row_factory = sqlite3.Row
-    categoriess = app.db_connection.execute('''
+    data = app.db_connection.execute('''
     SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID
     ''').fetchall()
     app.db_connection.close()
-    return {"categories": [{"id": "{}".format(i['CategoryID']), "name": "{}".format(i["CategoryName"])} for i in categoriess]}
+    return {"categories": [{"id": x['CategoryID'], "name": x["CategoryName"]} for x in data]}
 
 @app.get("/customers", status_code=200)
 async def customers():
     app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
     app.db_connection.row_factory = sqlite3.Row
-    customerss = app.db_connection.execute('''
+    data = app.db_connection.execute('''
     SELECT CustomerID, CompanyName, (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) AS full_address FROM Customers ORDER BY CustomerID
     ''').fetchall()
     app.db_connection.close()
-    return {"customers": [{"id": "{}".format(i['CustomerID']), "name": "{}".format(i["CompanyName"]), "full_address": "".format(i["full_address"])} for i in customerss]}
+    return {"customers": [{"id": f"{x['CustomerID']}", "name": x["CompanyName"], "full_address": (x["full_address"])} for x in data]}
 
 @app.get('/products/{id}', status_code=200)
 async def products(id: int):
