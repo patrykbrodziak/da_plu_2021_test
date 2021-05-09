@@ -278,55 +278,55 @@ def logged_out(format:str = ""):
 
 ############ WYKLAD 4 ##############
 ############ ZADANIE 1 #############
-@app.on_event("startup")
-async def startup():
-    app.db_connection = sqlite3.connect("northwind.db", check_same_thread=False)
-    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
-
-
-@app.on_event("shutdown")
-async def shutdown():
-    app.db_connection.close()
-
-
-# @app.get("/categories", status_code=200)
-# async def categories():
-#     app.db_connection = sqlite3.connect("northwind.db")
-#     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
-#     app.db_connection.row_factory = sqlite3.Row
-#     categoriess = app.db_connection.execute('''
-#     SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID
-#     ''').fetchall()
-#     app.db_connection.close()
-#     return {"categories": [{"id": "{}".format(i['CategoryID']), "name": "{}".format(i["CategoryName"])} for i in categoriess]}
+# @app.on_event("startup")
+# async def startup():
+#     app.db_connection = sqlite3.connect("northwind.db", check_same_thread=False)
+#     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
 #
-# @app.get("/customers", status_code=200)
-# async def customers():
-#     app.db_connection = sqlite3.connect("northwind.db")
-#     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
-#     app.db_connection.row_factory = sqlite3.Row
-#     customerss = app.db_connection.execute('''
-#     SELECT CustomerID, CompanyName, (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) AS full_address FROM Customers ORDER BY CustomerID
-#     ''').fetchall()
+#
+# @app.on_event("shutdown")
+# async def shutdown():
 #     app.db_connection.close()
-#     return {"customers": [{"id": "{}".format(i['CustomerID']), "name": "{}".format(i["CompanyName"]), "full_address": "".format(i["full_address"])} for i in customerss]}
 
 
-@app.get("/customers")
+@app.get("/categories", status_code=200)
+async def categories():
+    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
+    app.db_connection.row_factory = sqlite3.Row
+    categoriess = app.db_connection.execute('''
+    SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID
+    ''').fetchall()
+    app.db_connection.close()
+    return {"categories": [{"id": "{}".format(i['CategoryID']), "name": "{}".format(i["CategoryName"])} for i in categoriess]}
+
+@app.get("/customers", status_code=200)
 async def customers():
+    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute(
-        """SELECT CustomerId AS id, CompanyName AS name,
-          Address || ' ' || PostalCode || ' ' || City || ' ' || Country AS full_address FROM customers""").fetchall()
-    return {
-        'customers': data
-    }
+    customerss = app.db_connection.execute('''
+    SELECT CustomerID, CompanyName, (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) AS full_address FROM Customers ORDER BY CustomerID
+    ''').fetchall()
+    app.db_connection.close()
+    return {"customers": [{"id": "{}".format(i['CustomerID']), "name": "{}".format(i["CompanyName"]), "full_address": "".format(i["full_address"])} for i in customerss]}
 
-@app.get("/categories")
-async def categories_list():
-    app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute(
-        "SELECT CategoryId AS id, CategoryName AS name FROM Categories").fetchall()
-    return {
-        'categories': data
-    }
+
+# @app.get("/customers")
+# async def customers():
+#     app.db_connection.row_factory = sqlite3.Row
+#     data = app.db_connection.execute(
+#         """SELECT CustomerId AS id, CompanyName AS name,
+#           Address || ' ' || PostalCode || ' ' || City || ' ' || Country AS full_address FROM customers""").fetchall()
+#     return {
+#         'customers': data
+#     }
+#
+# @app.get("/categories")
+# async def categories_list():
+#     app.db_connection.row_factory = sqlite3.Row
+#     data = app.db_connection.execute(
+#         "SELECT CategoryId AS id, CategoryName AS name FROM Categories").fetchall()
+#     return {
+#         'categories': data
+#     }
