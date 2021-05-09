@@ -334,3 +334,15 @@ async def employees(limit: int = -1, offset: int = 0, order: str = 'id'):
     data = app.db_connection.execute(f"SELECT EmployeeID, LastName, FirstName, City FROM Employees ORDER BY {order} LIMIT ? OFFSET ?",(limit, offset, )).fetchall()
     app.db_connection.close()
     return {"employees": [{"id": x['EmployeeID'],"last_name":x['LastName'],"first_name":x['FirstName'],"city":x['City']} for x in data]}
+
+@app.get('/products_extended', status_code=200)
+def products_extended():
+    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute('''
+    SELECT Products.ProductID AS id, Products.ProductName AS name, Categories.CategoryName AS category, Suppliers.CompanyName AS supplier FROM Products 
+    JOIN Categories ON Products.CategoryID = Categories.CategoryID JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID ORDER BY Products.ProductID
+    ''').fetchall()
+    app.db_connection.close()
+    return {"products_extended": [{"id": x['id'], "name": x['name'], "category": x['category'], "supplier": x['supplier']} for x in data]}
