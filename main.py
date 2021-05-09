@@ -311,7 +311,16 @@ async def customers():
     app.db_connection.close()
     return {"customers": [{"id": "{}".format(i['CustomerID']), "name": "{}".format(i["CompanyName"]), "full_address": "".format(i["full_address"])} for i in customerss]}
 
-
+@app.get('/products/{id}', status_code=200)
+async def products(id: int):
+    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute("SELECT ProductName FROM Products WHERE ProductID = ?",(id,)).fetchone()
+    if data == None:
+        raise HTTPException(status_code=404)
+    app.db_connection.close()
+    return {"id": id, "name": data['ProductName']}
 # @app.get("/customers")
 # async def customers():
 #     app.db_connection.row_factory = sqlite3.Row
