@@ -321,21 +321,16 @@ async def products(id: int):
         raise HTTPException(status_code=404)
     app.db_connection.close()
     return {"id": id, "name": data['ProductName']}
-# @app.get("/customers")
-# async def customers():
-#     app.db_connection.row_factory = sqlite3.Row
-#     data = app.db_connection.execute(
-#         """SELECT CustomerId AS id, CompanyName AS name,
-#           Address || ' ' || PostalCode || ' ' || City || ' ' || Country AS full_address FROM customers""").fetchall()
-#     return {
-#         'customers': data
-#     }
-#
-# @app.get("/categories")
-# async def categories_list():
-#     app.db_connection.row_factory = sqlite3.Row
-#     data = app.db_connection.execute(
-#         "SELECT CategoryId AS id, CategoryName AS name FROM Categories").fetchall()
-#     return {
-#         'categories': data
-#     }
+
+@app.get('/employees', status_code=200)
+async def employees(limit: int = -1, offset: int = 0, order: str = 'id'):
+    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
+    app.db_connection.row_factory = sqlite3.Row
+    columns = {'first_name' : 'FirstName', 'last_name' : 'LastName', 'city' : 'City', 'id' : 'EmployeeID'}
+    if order not in columns.keys():
+        raise HTTPException(status_code=400)
+    order = columns[order]
+    data = app.db_connection.execute(f"SELECT EmployeeID, LastName, FirstName, City FROM Employees ORDER BY {order} LIMIT ? OFFSET ?",(limit, offset, )).fetchall()
+    app.db_connection.close()
+    return {"employees": [{"id": x['EmployeeID'],"last_name":x['LastName'],"first_name":x['FirstName'],"city":x['City']} for x in data]}
