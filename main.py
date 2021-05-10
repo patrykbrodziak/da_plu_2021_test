@@ -278,49 +278,39 @@ def logged_out(format:str = ""):
 
 ############ WYKLAD 4 ##############
 ############ ZADANIE 1 #############
-# @app.on_event("startup")
-# async def startup():
-#     app.db_connection = sqlite3.connect("northwind.db", check_same_thread=False)
-#     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
-#
-#
-# @app.on_event("shutdown")
-# async def shutdown():
-#     app.db_connection.close()
-
 
 @app.get("/categories", status_code=200)
-async def categores():
+async def categories():
     app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''
+    categoriess = app.db_connection.execute('''
     SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID
     ''').fetchall()
     app.db_connection.close()
-    return {"categories": [{"id": x['CategoryID'], "name": x["CategoryName"]} for x in data]}
+    return {"categories": [{"id": i['CategoryID'], "name": i["CategoryName"]} for i in categoriess]}
 
 @app.get("/customers", status_code=200)
 async def customers():
     app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''
+    customerss = app.db_connection.execute('''
     SELECT CustomerID, CompanyName, (COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) AS full_address FROM Customers ORDER BY CustomerID
     ''').fetchall()
     app.db_connection.close()
-    return {"customers": [{"id": f"{x['CustomerID']}", "name": x["CompanyName"], "full_address": (x["full_address"])} for x in data]}
+    return {"customers": [{"id": i['CustomerID'], "name": i["CompanyName"], "full_address": i["full_address"]} for i in customerss]}
 
 @app.get('/products/{id}', status_code=200)
 async def products(id: int):
     app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute("SELECT ProductName FROM Products WHERE ProductID = ?",(id,)).fetchone()
-    if data == None:
+    productss = app.db_connection.execute("SELECT ProductName FROM Products WHERE ProductID = ?",(id,)).fetchone()
+    if productss == None:
         raise HTTPException(status_code=404)
     app.db_connection.close()
-    return {"id": id, "name": data['ProductName']}
+    return {"id": id, "name": productss['ProductName']}
 
 @app.get('/employees', status_code=200)
 async def employees(limit: int = -1, offset: int = 0, order: str = 'id'):
@@ -331,18 +321,18 @@ async def employees(limit: int = -1, offset: int = 0, order: str = 'id'):
     if order not in columns.keys():
         raise HTTPException(status_code=400)
     order = columns[order]
-    data = app.db_connection.execute(f"SELECT EmployeeID, LastName, FirstName, City FROM Employees ORDER BY {order} LIMIT ? OFFSET ?",(limit, offset, )).fetchall()
+    employeess = app.db_connection.execute(f"SELECT EmployeeID, LastName, FirstName, City FROM Employees ORDER BY {order} LIMIT ? OFFSET ?",(limit, offset, )).fetchall()
     app.db_connection.close()
-    return {"employees": [{"id": x['EmployeeID'],"last_name":x['LastName'],"first_name":x['FirstName'],"city":x['City']} for x in data]}
+    return {"employees": [{"id": i['EmployeeID'],"last_name":i['LastName'],"first_name":i['FirstName'],"city":i['City']} for i in employeess]}
 
 @app.get('/products_extended', status_code=200)
-def products_extended():
+async def products_extended():
     app.db_connection = sqlite3.connect("northwind.db")
     app.db_connection.text_factory = lambda b: b.decode(errors="ignore")
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''
+    productss = app.db_connection.execute('''
     SELECT Products.ProductID AS id, Products.ProductName AS name, Categories.CategoryName AS category, Suppliers.CompanyName AS supplier FROM Products 
     JOIN Categories ON Products.CategoryID = Categories.CategoryID JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID ORDER BY Products.ProductID
     ''').fetchall()
     app.db_connection.close()
-    return {"products_extended": [{"id": x['id'], "name": x['name'], "category": x['category'], "supplier": x['supplier']} for x in data]}
+    return {"products_extended": [{"id": i['id'], "name": i['name'], "category": i['category'], "supplier": i['supplier']} for i in productss]}
